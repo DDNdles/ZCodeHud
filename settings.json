@@ -1,0 +1,36 @@
+{
+  "selectedSessionId": "auto",
+  "theme": "AppleGlass",
+  "opacity": 0.95,
+  "pollIntervalMs": 500,
+  "language": "zh-CN",
+  "alwaysOnTop": true,
+  "showTps": true,
+  "showAvgTps": true,
+  "showSparkline": true,
+  "showDuration": true,
+  "showInputTokens": true,
+  "showOutputTokens": true,
+  "showReasoning": true,
+  "showCache": true,
+  "showCost": true,
+  "showSessionSummary": true,
+  "customPricing": {
+    "enabled": false,
+    "input": 1.4000,
+    "output": 4.4000,
+    "cacheRead": 0.2600,
+    "usdToCny": 7.23
+  },
+  "quotaSettings": {
+    "enabled": false,
+    "totalQuota": 100.00,
+    "currency": "CNY"
+  },
+  "planSettings": {
+    "selectedPlan": "custom-plan",
+    "enabled": false,
+    "totalQuota": 100.00,
+    "currency": "CNY"
+  }
+}
