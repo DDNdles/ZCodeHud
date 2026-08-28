@@ -6,8 +6,12 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const csc = 'C:\\Windows\\Microsoft.NET\\Framework64\\v4.0.30319\\csc.exe';
-const src = path.join(__dirname, 'ZCodeHud.cs');
+const cscCandidates = [
+  'C:\\Windows\\Microsoft.NET\\Framework64\\v4.0.30319\\csc.exe',
+  'C:\\Windows\\Microsoft.NET\\Framework\\v4.0.30319\\csc.exe'
+];
+const csc = cscCandidates.find(p => fs.existsSync(p)) || cscCandidates[0];
+const src = path.join(__dirname, 'src', 'ZCodeHud.cs');
 const out = path.join(__dirname, 'ZCodeHud.exe');
 
 // GAC / WPF References
