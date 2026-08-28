@@ -3,6 +3,18 @@
 All notable changes to **ZCodeHUD** are documented here. This project adheres to
 [Semantic Versioning](https://semver.org/) (`MAJOR.MINOR.PATCH`).
 
+## [v1.0.1] - 2026-08-28
+
+Maintenance release (no user-facing behavior change).
+
+### Added
+- 发布工程化：CHANGELOG.md、CI 自动构建工作流（`.github/workflows/build.yml`）、Bug / Feature 模板与 PR 模板。
+
+### Fixed
+- 构建脚本 `compile.mjs` 改为从 `src/ZCodeHud.cs` 读取源文件（此前仓库已整理源码目录但构建仍指向根目录，会导致本地与 CI 构建失败）。
+
+[v1.0.1]: https://github.com/DDNdles/ZCodeHud/releases/tag/v1.0.1
+
 ## [v1.0.0] - 2026-08-28
 
 First public, release-grade version.
