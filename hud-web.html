@@ -1,0 +1,1687 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ZCode TPS Monitor HUD</title>
+  <style>
+    /* ==========================================================================
+       DESIGN SYSTEM & 6 CURATED THEMES (Based on @ux-ui-design Specifications)
+       Guaranteed Zero-Artifacts, Real Frosted Glass & Ultra-High Contrast Legibility
+       ========================================================================== */
+
+    /* 1. 🍎 苹果风毛玻璃 (Apple Glass / Cupertino Translucent) - 默认 */
+    :root, [data-theme="apple"], [data-theme="AppleGlass"] {
+      --bg-glass: rgba(255, 255, 255, 0.75);
+      --bg-glass-fallback: #F5F5F7;
+      --border-glass: rgba(0, 0, 0, 0.08);
+      --border-specular: rgba(255, 255, 255, 0.95);
+      --text-primary: #1D1D1F;
+      --text-secondary: #515154;
+      --text-muted: #86868B;
+      --badge-bg: rgba(0, 0, 0, 0.05);
+      --badge-border: rgba(0, 0, 0, 0.08);
+      --card-bg: rgba(255, 255, 255, 0.65);
+      --card-border: rgba(0, 0, 0, 0.06);
+      --accent-color: #0071E3;
+      --tps-color: #1D1D1F;
+      --avg-tps-color: #0071E3;
+      --sparkline-stroke: #0071E3;
+      --shadow-primary: 0 16px 36px -8px rgba(0, 0, 0, 0.18), 0 0 0 1px rgba(255, 255, 255, 0.7) inset;
+      --backdrop-filter: blur(28px) saturate(190%) contrast(102%);
+      --font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+      --card-radius: 20px;
+    }
+
+    /* 2. 🌐 谷歌风 (Google Material 3 / MD3 Tonal Surface) */
+    [data-theme="google"], [data-theme="GoogleMaterial"] {
+      --bg-glass: #F0F4F9;
+      --bg-glass-fallback: #EDF2FA;
+      --border-glass: #C2D7FF;
+      --border-specular: #FFFFFF;
+      --text-primary: #1F1F1F;
+      --text-secondary: #444746;
+      --text-muted: #727775;
+      --badge-bg: #D3E3FD;
+      --badge-border: #A8C7FA;
+      --card-bg: #FFFFFF;
+      --card-border: #E0E3E7;
+      --accent-color: #0B57D0;
+      --tps-color: #0B57D0;
+      --avg-tps-color: #146C2E;
+      --sparkline-stroke: #0B57D0;
+      --shadow-primary: 0 8px 24px -4px rgba(11, 87, 208, 0.12), 0 1px 3px rgba(0, 0, 0, 0.06);
+      --backdrop-filter: blur(12px);
+      --font-family: "Google Sans", "Segoe UI", Roboto, Arial, sans-serif;
+      --card-radius: 24px;
+    }
+
+    /* 3. ⚡ 赛博霓虹 (Cyberpunk Neon - High Contrast Dark) */
+    [data-theme="cyberpunk"], [data-theme="CyberpunkNeon"], [data-theme="anime"], [data-theme="AnimeCyber"] {
+      --bg-glass: rgba(11, 15, 25, 0.94);
+      --bg-glass-fallback: #0B0F19;
+      --border-glass: rgba(0, 240, 255, 0.4);
+      --border-specular: rgba(0, 240, 255, 0.8);
+      --text-primary: #FFFFFF;
+      --text-secondary: #C084FC;
+      --text-muted: #94A3B8;
+      --badge-bg: rgba(0, 240, 255, 0.12);
+      --badge-border: rgba(0, 240, 255, 0.4);
+      --card-bg: rgba(255, 255, 255, 0.05);
+      --card-border: rgba(0, 240, 255, 0.25);
+      --accent-color: #00F0FF;
+      --tps-color: #00F0FF;
+      --avg-tps-color: #FACC15;
+      --sparkline-stroke: #00F0FF;
+      --shadow-primary: 0 0 24px rgba(0, 240, 255, 0.20), 0 0 0 1px rgba(0, 240, 255, 0.4);
+      --backdrop-filter: blur(24px) saturate(180%);
+      --font-family: "JetBrains Mono", "SF Pro Display", "Segoe UI", sans-serif;
+      --card-radius: 14px;
+    }
+
+    /* 4. 🌿 北欧极简 (Nordic Clean - Slate & Emerald) */
+    [data-theme="nordic"], [data-theme="NordicClean"] {
+      --bg-glass: rgba(248, 250, 252, 0.92);
+      --bg-glass-fallback: #F8FAFC;
+      --border-glass: #CBD5E1;
+      --border-specular: #FFFFFF;
+      --text-primary: #0F172A;
+      --text-secondary: #475569;
+      --text-muted: #64748B;
+      --badge-bg: #E2E8F0;
+      --badge-border: #CBD5E1;
+      --card-bg: #FFFFFF;
+      --card-border: #E2E8F0;
+      --accent-color: #10B981;
+      --tps-color: #0F172A;
+      --avg-tps-color: #10B981;
+      --sparkline-stroke: #10B981;
+      --shadow-primary: 0 10px 30px -6px rgba(15, 23, 42, 0.08), 0 1px 3px rgba(0, 0, 0, 0.04);
+      --backdrop-filter: blur(20px);
+      --font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --card-radius: 16px;
+    }
+
+    /* 5. 📰 复古报刊 (Vintage Editorial - Classic Paper & Ink) */
+    [data-theme="newspaper"], [data-theme="Newspaper"] {
+      --bg-glass: #F6F1E8;
+      --bg-glass-fallback: #EDE5D8;
+      --border-glass: #282420;
+      --border-specular: #282420;
+      --text-primary: #181512;
+      --text-secondary: #3C3630;
+      --text-muted: #645C54;
+      --badge-bg: #E8E0D2;
+      --badge-border: #282420;
+      --card-bg: #FAF6EE;
+      --card-border: #282420;
+      --accent-color: #991B1B;
+      --tps-color: #181512;
+      --avg-tps-color: #991B1B;
+      --sparkline-stroke: #991B1B;
+      --shadow-primary: 4px 4px 0px #282420;
+      --backdrop-filter: none;
+      --font-family: "Georgia", "Times New Roman", "Songti SC", "SimSun", serif;
+      --card-radius: 4px;
+    }
+
+    /* 6. 🌌 黑曜石超清暗黑 (Obsidian Pro - OLED Dark Mode with Ultra-High Contrast) */
+    [data-theme="obsidian"], [data-theme="ObsidianPro"], [data-theme="DarkGlass"] {
+      --bg-glass: rgba(15, 17, 23, 0.94);
+      --bg-glass-fallback: #0F1117;
+      --border-glass: rgba(255, 255, 255, 0.16);
+      --border-specular: rgba(255, 255, 255, 0.50);
+      --text-primary: #F8FAFC;
+      --text-secondary: #94A3B8;
+      --text-muted: #64748B;
+      --badge-bg: rgba(255, 255, 255, 0.08);
+      --badge-border: rgba(255, 255, 255, 0.16);
+      --card-bg: rgba(255, 255, 255, 0.04);
+      --card-border: rgba(255, 255, 255, 0.10);
+      --accent-color: #38BDF8;
+      --tps-color: #38BDF8;
+      --avg-tps-color: #4ADE80;
+      --sparkline-stroke: #38BDF8;
+      --shadow-primary: 0 16px 36px -8px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.12) inset;
+      --backdrop-filter: blur(28px) saturate(180%);
+      --font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+      --card-radius: 18px;
+    }
+
+    /* ==========================================================================
+       BASE & RESET - 100% Zero-White Background Artifacts
+       ========================================================================== */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    html, body {
+      width: 100vw;
+      height: 100vh;
+      background: transparent !important;
+      overflow: hidden;
+      font-family: var(--font-family);
+      padding: 10px;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    .tnum, .metric-val, .tps-value, .avg-tps-val, .cost-badge span, .session-footer span, .quota-badge span {
+      font-variant-numeric: tabular-nums;
+      font-feature-settings: "tnum" 1;
+    }
+
+    #hud-scaler {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transform-origin: center center;
+      transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease;
+    }
+
+    /* Main Floating Container */
+    #app-container {
+      position: relative;
+      width: 100%;
+      max-width: 430px;
+      background: var(--bg-glass);
+      backdrop-filter: var(--backdrop-filter);
+      -webkit-backdrop-filter: var(--backdrop-filter);
+      border-radius: var(--card-radius);
+      border: 1px solid var(--border-glass);
+      border-top: 1px solid var(--border-specular);
+      box-shadow: var(--shadow-primary);
+      color: var(--text-primary);
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      cursor: grab;
+      margin: 0 auto;
+    }
+
+    #app-container:active {
+      cursor: grabbing;
+    }
+
+    /* Header Bar */
+    .hud-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      overflow: hidden;
+      flex: 1;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 8px;
+      border-radius: 12px;
+      background: var(--badge-bg);
+      border: 1px solid var(--badge-border);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+      color: var(--text-primary);
+      flex-shrink: 0;
+    }
+
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #86868B;
+      transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .pulse-dot.generating {
+      background: #10B981;
+      box-shadow: 0 0 10px #10B981;
+      animation: pulse-glow 1.4s infinite ease-in-out;
+    }
+
+    .pulse-dot.idle {
+      background: #86868B;
+      box-shadow: none;
+      animation: none;
+    }
+
+    @keyframes pulse-glow {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.3); opacity: 0.6; }
+    }
+
+    .session-title-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      overflow: hidden;
+    }
+
+    .session-title-text {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 170px;
+    }
+
+    .model-subtag {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      flex-shrink: 0;
+    }
+
+    .icon-btn {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      border: 1px solid var(--badge-border);
+      background: var(--badge-bg);
+      color: var(--text-primary);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 700;
+      transition: all 0.15s ease;
+    }
+
+    .icon-btn:hover {
+      background: rgba(0, 0, 0, 0.12);
+      transform: scale(1.08);
+    }
+
+    /* TPS Showcase Hero Section */
+    .tps-showcase {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 1px 0;
+      gap: 8px;
+    }
+
+    .tps-dual-panel {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .tps-main {
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+    }
+
+    .tps-value {
+      font-size: 36px;
+      font-weight: 800;
+      line-height: 1;
+      letter-spacing: -1px;
+      color: var(--tps-color);
+      transition: color 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .tps-unit {
+      font-size: 12.5px;
+      font-weight: 700;
+      color: var(--text-muted);
+      letter-spacing: 0.5px;
+    }
+
+    .avg-tps-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 8px;
+      border-radius: 8px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      font-size: 11.5px;
+      font-weight: 700;
+      color: var(--avg-tps-color);
+    }
+
+    .avg-tps-label {
+      font-size: 9.5px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    /* Cost or Quota Display */
+    .cost-or-quota-display {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 2px;
+    }
+
+    .cost-badge, .quota-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 9px;
+      border-radius: 8px;
+      background: var(--badge-bg);
+      border: 1px solid var(--badge-border);
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--accent-color);
+      cursor: pointer;
+      transition: transform 0.15s ease;
+    }
+
+    .cost-badge:hover, .quota-badge:hover {
+      transform: scale(1.04);
+    }
+
+    .cost-label, .quota-label {
+      font-size: 9px;
+      font-weight: 700;
+      color: var(--text-muted);
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+    }
+
+    /* Quota alert indicators */
+    .quota-badge.normal {
+      color: #10B981;
+      border-color: rgba(16, 185, 129, 0.4);
+    }
+    .quota-badge.warning {
+      color: #F59E0B;
+      border-color: rgba(245, 158, 11, 0.6);
+      animation: pulse-glow 1.5s infinite ease-in-out;
+    }
+    .quota-badge.critical {
+      color: #EF4444;
+      border-color: rgba(239, 68, 68, 0.8);
+      animation: pulse-glow 0.8s infinite ease-in-out;
+    }
+
+    /* Quota Multi-Tier Container */
+    .quota-tiers-container {
+      display: none;
+      flex-direction: column;
+      gap: 3px;
+      margin: 1px 0;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 6px 8px;
+    }
+
+    .quota-tier-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 10.5px;
+      color: var(--text-secondary);
+    }
+
+    .quota-tier-bar {
+      width: 100%;
+      height: 5px;
+      border-radius: 3px;
+      background: rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      margin: 2px 0 4px 0;
+    }
+
+    .quota-tier-fill {
+      height: 100%;
+      border-radius: 3px;
+      background: linear-gradient(90deg, #10B981, #38BDF8);
+      transition: width 0.3s ease;
+    }
+
+    /* Sparkline Waveform */
+    .waveform-container {
+      width: 100%;
+      height: 36px;
+      position: relative;
+      overflow: hidden;
+      border-radius: 8px;
+      background: rgba(0, 0, 0, 0.04);
+      border: 1px solid var(--card-border);
+    }
+
+    .waveform-svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* Metrics Grid */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+    }
+
+    .metric-chip {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 6px 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      transition: all 0.2s ease;
+    }
+
+    .metric-chip:hover {
+      border-color: var(--accent-color);
+      transform: translateY(-1px);
+    }
+
+    .metric-lbl {
+      font-size: 9.5px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .metric-val {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    /* Session Footer Summary */
+    .session-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+
+    .session-tokens-col, .session-cost-col {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+
+    .footer-lbl {
+      font-size: 9px;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .footer-val {
+      font-size: 11.5px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .footer-val.cost {
+      color: var(--accent-color);
+    }
+
+    /* ==========================================================================
+       SETTINGS DRAWER PANEL (Enhanced Model Manager & Coding Plan Center)
+       ========================================================================== */
+    #settings-drawer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: var(--bg-glass-fallback);
+      border-radius: var(--card-radius);
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      z-index: 100;
+      transform: translateY(105%);
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.15);
+      overflow-y: auto;
+    }
+
+    #settings-drawer.open {
+      transform: translateY(0);
+    }
+
+    .drawer-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--border-glass);
+    }
+
+    .drawer-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .drawer-tabs {
+      display: flex;
+      gap: 4px;
+      border-bottom: 1px solid var(--border-glass);
+      padding-bottom: 4px;
+      margin-bottom: 4px;
+    }
+
+    .drawer-tab-btn {
+      padding: 4px 8px;
+      border-radius: 6px;
+      background: transparent;
+      border: none;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .drawer-tab-btn.active {
+      background: var(--badge-bg);
+      color: var(--accent-color);
+      font-weight: 700;
+    }
+
+    .tab-content {
+      display: none;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .tab-content.active {
+      display: flex;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .form-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-secondary);
+    }
+
+    .form-control {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 5px 8px;
+      font-size: 11.5px;
+      color: var(--text-primary);
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.2s ease;
+    }
+
+    .form-control:focus {
+      border-color: var(--accent-color);
+    }
+
+    .user-models-list {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      max-height: 120px;
+      overflow-y: auto;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 4px;
+    }
+
+    .user-model-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 4px 6px;
+      border-radius: 6px;
+      background: rgba(0, 0, 0, 0.03);
+      font-size: 11px;
+    }
+
+    .user-model-info {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      overflow: hidden;
+    }
+
+    .user-model-title {
+      font-weight: 700;
+      color: var(--text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 210px;
+    }
+
+    .user-model-meta {
+      font-size: 9.5px;
+      color: var(--text-muted);
+    }
+
+    .btn-edit-model {
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: var(--accent-color);
+      color: #FFFFFF;
+      border: none;
+      font-size: 10px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .category-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 3px;
+      margin-bottom: 4px;
+    }
+
+    .category-pill {
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: var(--badge-bg);
+      border: 1px solid var(--badge-border);
+      font-size: 9.5px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      cursor: pointer;
+    }
+
+    .category-pill.active {
+      background: var(--accent-color);
+      color: #FFFFFF;
+      border-color: var(--accent-color);
+    }
+
+    .preset-catalog-list {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      max-height: 140px;
+      overflow-y: auto;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 4px;
+    }
+
+    .preset-catalog-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 4px 6px;
+      border-radius: 6px;
+      background: rgba(0, 0, 0, 0.02);
+      font-size: 11px;
+    }
+
+    .preset-catalog-item:hover {
+      background: rgba(0, 0, 0, 0.06);
+    }
+
+    .switch-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 6px;
+    }
+
+    .switch-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      color: var(--text-primary);
+      cursor: pointer;
+    }
+
+    .btn-save {
+      width: 100%;
+      padding: 8px;
+      border-radius: 8px;
+      background: var(--accent-color);
+      color: #FFFFFF;
+      border: none;
+      font-weight: 700;
+      font-size: 12px;
+      cursor: pointer;
+      margin-top: 4px;
+      transition: opacity 0.2s ease;
+    }
+
+    .btn-save:hover {
+      opacity: 0.9;
+    }
+  </style>
+</head>
+<body data-theme="apple">
+
+  <div id="hud-scaler">
+    <div id="app-container">
+
+      <!-- 1. Header Toolbar -->
+      <div class="hud-header">
+        <div class="header-left">
+          <div class="status-badge" id="status-badge">
+            <span class="pulse-dot idle" id="pulse-dot"></span>
+            <span id="status-text">就绪</span>
+          </div>
+          <div class="session-title-wrapper">
+            <span class="session-title-text" id="session-title">ZCode 实时监控</span>
+            <span class="model-subtag" id="model-name">Gemini 3.7 Flash</span>
+          </div>
+        </div>
+
+        <div class="header-actions">
+          <button class="icon-btn" id="btn-settings" title="打开设置中心">⚙</button>
+          <button class="icon-btn" id="btn-minimize" title="最小化">—</button>
+        </div>
+      </div>
+
+      <!-- 2. Hero TPS Showcase & Quota/Cost -->
+      <div class="tps-showcase">
+        <div class="tps-dual-panel">
+          <div class="tps-main" id="tps-main-wrap">
+            <span class="tps-value tnum" id="tps-val">0.0</span>
+            <span class="tps-unit">TPS</span>
+          </div>
+          <div class="avg-tps-badge" id="avg-tps-wrap">
+            <span class="avg-tps-label">均值</span>
+            <span class="avg-tps-val tnum" id="avg-tps-val">0.0</span>
+          </div>
+        </div>
+
+        <div class="cost-or-quota-display">
+          <!-- Real-time Cost Badge -->
+          <div class="cost-badge" id="cost-badge" title="点击切换 Coding Plan 额度/单轮模式">
+            <span class="cost-label" id="cost-lbl">单轮费用</span>
+            <span class="tnum" id="cost-val">¥0.0000</span>
+          </div>
+
+          <!-- Quota Badge (Toggled in Quota Mode) -->
+          <div class="quota-badge normal" id="quota-badge" style="display: none;" title="点击查看各滚动周期额度明细">
+            <span class="quota-label" id="quota-sub">5h 限额剩余</span>
+            <span class="tnum" id="quota-val">$12.00</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quota Multi-Tier Rolling Progress Bars -->
+      <div class="quota-tiers-container" id="quota-tiers-wrap">
+        <div class="quota-tier-row">
+          <span id="tier-5h-label">5小时窗口: $12.00 / $12.00</span>
+          <span id="tier-5h-percent">100%</span>
+        </div>
+        <div class="quota-tier-bar">
+          <div class="quota-tier-fill" id="tier-5h-fill" style="width: 100%;"></div>
+        </div>
+
+        <div class="quota-tier-row" id="tier-7d-row">
+          <span id="tier-7d-label">周窗口 (7天): $30.00 / $30.00</span>
+          <span id="tier-7d-percent">100%</span>
+        </div>
+        <div class="quota-tier-bar" id="tier-7d-bar">
+          <div class="quota-tier-fill" id="tier-7d-fill" style="width: 100%;"></div>
+        </div>
+      </div>
+
+      <!-- 3. TPS Waveform Sparkline -->
+      <div class="waveform-container" id="waveform-wrap">
+        <svg class="waveform-svg" id="waveform-svg" viewBox="0 0 380 36" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="waveGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="var(--sparkline-stroke)" stop-opacity="0.35"/>
+              <stop offset="100%" stop-color="var(--sparkline-stroke)" stop-opacity="0.0"/>
+            </linearGradient>
+          </defs>
+          <path id="wave-area" d="" fill="url(#waveGradient)"></path>
+          <path id="wave-line" d="" fill="none" stroke="var(--sparkline-stroke)" stroke-width="2" stroke-linecap="round"></path>
+          <circle id="wave-dot" cx="-10" cy="-10" r="3.5" fill="#FACC15"></circle>
+        </svg>
+      </div>
+
+      <!-- 4. Reflowable Fluid Metric Chips (2x3 Grid) -->
+      <div class="metrics-grid" id="metrics-grid">
+        <div class="metric-chip" id="chip-input">
+          <span class="metric-lbl">输入 Tokens</span>
+          <span class="metric-val tnum" id="val-input">0</span>
+        </div>
+        <div class="metric-chip" id="chip-output">
+          <span class="metric-lbl">输出 Tokens</span>
+          <span class="metric-val tnum" id="val-output">0</span>
+        </div>
+        <div class="metric-chip" id="chip-reasoning">
+          <span class="metric-lbl">思维链 Tokens</span>
+          <span class="metric-val tnum" id="val-reasoning">0</span>
+        </div>
+        <div class="metric-chip" id="chip-cache" title="整段会话累计平均缓存命中率">
+          <span class="metric-lbl">缓存命中率</span>
+          <span class="metric-val tnum" id="val-cache">0.0%</span>
+        </div>
+        <div class="metric-chip" id="chip-duration">
+          <span class="metric-lbl">耗时 · TTFT</span>
+          <span class="metric-val tnum" id="val-duration">0.0s</span>
+        </div>
+        <div class="metric-chip" id="chip-cost">
+          <span class="metric-lbl">单轮估算</span>
+          <span class="metric-val tnum" id="val-cost-chip">¥0.0000</span>
+        </div>
+      </div>
+
+      <!-- 5. Session Aggregate Summary -->
+      <div class="session-footer" id="session-summary-card">
+        <div class="session-tokens-col">
+          <span class="footer-lbl">本会话累计消耗</span>
+          <span class="footer-val tnum" id="val-session-tokens">0 Tokens (0轮)</span>
+        </div>
+        <div class="session-cost-col" style="text-align: right;">
+          <span class="footer-lbl">累计总费用</span>
+          <span class="footer-val cost tnum" id="val-session-cost">¥0.000 ($0.000)</span>
+        </div>
+      </div>
+
+      <!-- ==========================================================================
+           6. In-App Settings Drawer Center (Comprehensive Model & Quota Manager)
+           ========================================================================== -->
+      <div id="settings-drawer">
+        <div class="drawer-header">
+          <span class="drawer-title">⚙ ZCode HUD 配置与模型管理中心</span>
+          <button class="icon-btn" id="btn-close-settings">✕</button>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="drawer-tabs">
+          <button class="drawer-tab-btn active" onclick="switchSettingsTab('tab-models')">🤖 模型与价格</button>
+          <button class="drawer-tab-btn" onclick="switchSettingsTab('tab-plan')">🚀 Coding Plan 额度</button>
+          <button class="drawer-tab-btn" onclick="switchSettingsTab('tab-general')">🎨 主题与显示</button>
+        </div>
+
+        <!-- TAB 1: MODELS & PRICING -->
+        <div class="tab-content active" id="tab-models">
+          <!-- 1.1 Auto-detected Historical Models -->
+          <div class="form-group">
+            <label class="form-label">📜 本地历史使用过的模型 (自动读取)</label>
+            <div class="user-models-list" id="user-models-container">
+              <div style="font-size: 10px; color: var(--text-muted); padding: 4px;">正在读取本地数据库使用记录...</div>
+            </div>
+          </div>
+
+          <!-- 1.2 Preset Catalog Quick Selector -->
+          <div class="form-group">
+            <label class="form-label">📚 预设价格库快速检索 (OpenCode Go / 主流厂商)</label>
+            <div class="category-pills" id="category-pills">
+              <span class="category-pill active" onclick="filterPresetCategory('ALL')">全部</span>
+              <span class="category-pill" onclick="filterPresetCategory('OpenCode Go')">🔥 OpenCode Go</span>
+              <span class="category-pill" onclick="filterPresetCategory('OpenAI')">OpenAI</span>
+              <span class="category-pill" onclick="filterPresetCategory('Claude')">Claude</span>
+              <span class="category-pill" onclick="filterPresetCategory('Gemini')">Gemini</span>
+              <span class="category-pill" onclick="filterPresetCategory('DeepSeek')">DeepSeek</span>
+              <span class="category-pill" onclick="filterPresetCategory('GLM')">智谱 GLM</span>
+              <span class="category-pill" onclick="filterPresetCategory('MiMo')">小米 MiMo</span>
+              <span class="category-pill" onclick="filterPresetCategory('Hunyuan')">腾讯 HY</span>
+              <span class="category-pill" onclick="filterPresetCategory('MiniMax')">MiniMax</span>
+            </div>
+            <input type="text" class="form-control" id="preset-search-input" placeholder="🔍 搜索模型名称 (如 glm-5.3, deepseek, kimi...)" oninput="renderPresetCatalog()">
+            <div class="preset-catalog-list" id="preset-catalog-container"></div>
+          </div>
+
+          <!-- 1.3 Custom Model Editor -->
+          <div class="form-group" style="border-top: 1px solid var(--border-glass); padding-top: 6px;">
+            <label class="form-label">➕ 编辑 / 自定义新增模型价格 ($/1M Token)</label>
+            <div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 4px;">
+              <input type="text" class="form-control" id="custom-model-id" placeholder="模型 ID (如 deepseek-chat)">
+              <input type="text" class="form-control" id="custom-model-name" placeholder="显示名称 (可选)">
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 4px; margin-top: 2px;">
+              <input type="number" step="0.0001" class="form-control" id="custom-model-in" placeholder="输入 ($/1M)" value="0.15">
+              <input type="number" step="0.0001" class="form-control" id="custom-model-out" placeholder="输出 ($/1M)" value="0.60">
+              <input type="number" step="0.0001" class="form-control" id="custom-model-cache" placeholder="缓存 ($/1M)" value="0.0375">
+              <button class="btn-edit-model" id="btn-save-custom-model" style="height: 28px; font-size: 11px;">💾 保存模型</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 2: CODING PLAN QUOTA MONITOR -->
+        <div class="tab-content" id="tab-plan">
+          <div class="form-group">
+            <label class="form-label">🚀 监测的 Coding Plan 类型</label>
+            <select class="form-control" id="select-plan-type" onchange="onPlanTypeChange()">
+              <option value="opencode-go">🔥 OpenCode Go 订阅计划 ($12/5h, $30/7d, $60/mo)</option>
+              <option value="glm-coding-plan">智谱 GLM Coding Plan (按月 Token 包)</option>
+              <option value="deepseek-api-balance">DeepSeek 官方 API 余额监控 (CNY)</option>
+              <option value="custom-plan">自定义周期配额计划</option>
+            </select>
+          </div>
+
+          <div class="form-group" id="plan-opencode-desc">
+            <div style="font-size: 11px; color: var(--text-secondary); background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 8px; padding: 8px; line-height: 1.4;">
+              💡 <b>OpenCode Go 自动识别机制：</b><br>
+              • 5小时限额：<b>$12.00</b> (滚动释放)<br>
+              • 7天周限额：<b>$30.00</b><br>
+              • 30天月限额：<b>$60.00</b><br>
+              系统会自动读取本地数据库中近期的模型消耗并精准换算为实时剩余额度。
+            </div>
+          </div>
+
+          <div class="form-group" id="plan-custom-config" style="display: none;">
+            <label class="form-label">计划总配额设置</label>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px;">
+              <input type="number" class="form-control" id="plan-custom-quota" placeholder="总配额" value="100">
+              <select class="form-control" id="plan-custom-unit">
+                <option value="USD">美元 ($ USD)</option>
+                <option value="CNY">人民币 (¥ CNY)</option>
+                <option value="Tokens">Tokens (百万 M)</option>
+              </select>
+            </div>
+          </div>
+
+          <label class="switch-item" style="margin-top: 4px;">
+            <input type="checkbox" id="chk-plan-enabled" checked> 开启 Coding Plan 额度 HUD 动态监控
+          </label>
+        </div>
+
+        <!-- TAB 3: GENERAL THEME & DISPLAY -->
+        <div class="tab-content" id="tab-general">
+          <div class="form-group">
+            <label class="form-label">1. 目标监控会话</label>
+            <select class="form-control" id="select-session">
+              <option value="auto">⚡ 自动追踪最新活跃会话 (Auto-Detect)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">2. HUD 界面主题 (6 款高颜值主题)</label>
+            <select class="form-control" id="select-theme">
+              <option value="AppleGlass">🍎 苹果风毛玻璃 (Apple Glass)</option>
+              <option value="GoogleMaterial">🌐 谷歌风 (Google Material 3)</option>
+              <option value="CyberpunkNeon">⚡ 赛博霓虹 (Cyberpunk Neon)</option>
+              <option value="NordicClean">🌿 北欧极简 (Nordic Clean)</option>
+              <option value="Newspaper">📰 报纸复古风 (Vintage Editorial)</option>
+              <option value="ObsidianPro">🌌 黑曜石超清暗黑 (Obsidian Pro)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">3. 悬浮窗显示数据项</label>
+            <div class="switch-grid">
+              <label class="switch-item"><input type="checkbox" id="chk-tps" checked> ⚡ 实时 TPS</label>
+              <label class="switch-item"><input type="checkbox" id="chk-avg-tps" checked> 📊 平均 TPS</label>
+              <label class="switch-item"><input type="checkbox" id="chk-sparkline" checked> 📈 走势波形图</label>
+              <label class="switch-item"><input type="checkbox" id="chk-duration" checked> ⏱️ 耗时与 TTFT</label>
+              <label class="switch-item"><input type="checkbox" id="chk-input" checked> 📥 上下文输入</label>
+              <label class="switch-item"><input type="checkbox" id="chk-output" checked> 📤 输出 Token</label>
+              <label class="switch-item"><input type="checkbox" id="chk-reasoning" checked> 🧠 思维链推理</label>
+              <label class="switch-item"><input type="checkbox" id="chk-cache" checked> ⚡ 缓存命中率</label>
+              <label class="switch-item"><input type="checkbox" id="chk-cost" checked> 💰 单轮费用</label>
+              <label class="switch-item"><input type="checkbox" id="chk-summary" checked> 📋 会话全量统计</label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Save Button -->
+        <button class="btn-save" id="btn-save-settings">✓ 保存并应用所有配置</button>
+      </div>
+
+    </div>
+  </div>
+
+  <script type="module">
+    import { PRESET_CATALOG, USD_TO_CNY } from './pricing-catalog.mjs';
+
+    // State management
+    let metricsState = null;
+    let selectedCategory = 'ALL';
+    let settingsState = {
+      theme: "AppleGlass",
+      selectedSessionId: "auto",
+      showTps: true,
+      showAvgTps: true,
+      showSparkline: true,
+      showDuration: true,
+      showInputTokens: true,
+      showOutputTokens: true,
+      showReasoning: true,
+      showCache: true,
+      showCost: true,
+      showSessionSummary: true,
+      customModels: {},
+      planSettings: {
+        selectedPlan: "opencode-go",
+        enabled: true,
+        totalQuota: 100.0,
+        currency: "USD"
+      }
+    };
+
+    // DOM Elements
+    const bodyEl = document.body;
+    const pulseDot = document.getElementById("pulse-dot");
+    const statusText = document.getElementById("status-text");
+    const sessionTitle = document.getElementById("session-title");
+    const modelName = document.getElementById("model-name");
+    const tpsVal = document.getElementById("tps-val");
+    const avgTpsVal = document.getElementById("avg-tps-val");
+    const costBadge = document.getElementById("cost-badge");
+    const costVal = document.getElementById("cost-val");
+    const costLbl = document.getElementById("cost-lbl");
+    const quotaBadge = document.getElementById("quota-badge");
+    const quotaVal = document.getElementById("quota-val");
+    const quotaSub = document.getElementById("quota-sub");
+    const quotaTiersWrap = document.getElementById("quota-tiers-wrap");
+
+    const tier5hLabel = document.getElementById("tier-5h-label");
+    const tier5hPercent = document.getElementById("tier-5h-percent");
+    const tier5hFill = document.getElementById("tier-5h-fill");
+    const tier7dRow = document.getElementById("tier-7d-row");
+    const tier7dLabel = document.getElementById("tier-7d-label");
+    const tier7dPercent = document.getElementById("tier-7d-percent");
+    const tier7dFill = document.getElementById("tier-7d-fill");
+    const tier7dBar = document.getElementById("tier-7d-bar");
+
+    const valInput = document.getElementById("val-input");
+    const valOutput = document.getElementById("val-output");
+    const valReasoning = document.getElementById("val-reasoning");
+    const valCache = document.getElementById("val-cache");
+    const valDuration = document.getElementById("val-duration");
+    const valCostChip = document.getElementById("val-cost-chip");
+    const valSessionTokens = document.getElementById("val-session-tokens");
+    const valSessionCost = document.getElementById("val-session-cost");
+
+    const settingsDrawer = document.getElementById("settings-drawer");
+    const btnSettings = document.getElementById("btn-settings");
+    const btnCloseSettings = document.getElementById("btn-close-settings");
+    const btnSaveSettings = document.getElementById("btn-save-settings");
+    const selectTheme = document.getElementById("select-theme");
+    const selectSession = document.getElementById("select-session");
+
+    const userModelsContainer = document.getElementById("user-models-container");
+    const presetCatalogContainer = document.getElementById("preset-catalog-container");
+    const presetSearchInput = document.getElementById("preset-search-input");
+
+    const customModelId = document.getElementById("custom-model-id");
+    const customModelName = document.getElementById("custom-model-name");
+    const customModelIn = document.getElementById("custom-model-in");
+    const customModelOut = document.getElementById("custom-model-out");
+    const customModelCache = document.getElementById("custom-model-cache");
+    const btnSaveCustomModel = document.getElementById("btn-save-custom-model");
+
+    const selectPlanType = document.getElementById("select-plan-type");
+    const planOpencodeDesc = document.getElementById("plan-opencode-desc");
+    const planCustomConfig = document.getElementById("plan-custom-config");
+    const chkPlanEnabled = document.getElementById("chk-plan-enabled");
+
+    // Tab Switcher
+    window.switchSettingsTab = function(tabId, evt) {
+      document.querySelectorAll(".drawer-tab-btn").forEach(btn => btn.classList.remove("active"));
+      document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
+      const targetTab = document.getElementById(tabId);
+      if (targetTab) targetTab.classList.add("active");
+      const clickedBtn = evt ? evt.currentTarget || evt.target : (event ? (event.currentTarget || event.target) : null);
+      if (clickedBtn && clickedBtn.classList) clickedBtn.classList.add("active");
+    };
+
+    // Category Filter
+    window.filterPresetCategory = function(cat) {
+      selectedCategory = cat;
+      document.querySelectorAll(".category-pill").forEach(p => {
+        if (p.textContent.includes(cat) || (cat === 'ALL' && p.textContent === '全部')) {
+          p.classList.add("active");
+        } else {
+          p.classList.remove("active");
+        }
+      });
+      renderPresetCatalog();
+    };
+
+    // Theme Application
+    function applyTheme(themeName) {
+      bodyEl.setAttribute("data-theme", themeName);
+      selectTheme.value = themeName;
+    }
+
+    // Populate Preset Catalog
+    window.renderPresetCatalog = function() {
+      if (!presetCatalogContainer) return;
+      const search = (presetSearchInput.value || "").toLowerCase().trim();
+      presetCatalogContainer.innerHTML = "";
+
+      let entries = Object.entries(PRESET_CATALOG);
+      if (selectedCategory !== 'ALL') {
+        entries = entries.filter(([_, item]) => item.category === selectedCategory);
+      }
+      if (search) {
+        entries = entries.filter(([id, item]) => id.toLowerCase().includes(search) || item.name.toLowerCase().includes(search));
+      }
+
+      if (entries.length === 0) {
+        presetCatalogContainer.innerHTML = `<div style="font-size: 10px; color: var(--text-muted); padding: 4px;">未找到匹配的模型</div>`;
+        return;
+      }
+
+      entries.slice(0, 40).forEach(([id, item]) => {
+        const div = document.createElement("div");
+        div.className = "preset-catalog-item";
+        div.innerHTML = `
+          <div style="display: flex; flex-direction: column; gap: 1px; overflow: hidden;">
+            <span style="font-weight: 700; color: var(--text-primary); font-size: 11px;">${item.name}</span>
+            <span style="font-size: 9.5px; color: var(--text-muted);">ID: ${id} · 入: $${item.input} / 出: $${item.output} / 缓: $${item.cacheRead}</span>
+          </div>
+          <button class="btn-edit-model" style="background: var(--badge-bg); color: var(--text-primary); border: 1px solid var(--badge-border);">填入</button>
+        `;
+        div.querySelector("button").onclick = () => {
+          customModelId.value = id;
+          customModelName.value = item.name;
+          customModelIn.value = item.input;
+          customModelOut.value = item.output;
+          customModelCache.value = item.cacheRead;
+        };
+        presetCatalogContainer.appendChild(div);
+      });
+    };
+
+    // HTML escape helper: model ids/names come from the local SQLite DB and
+    // must never be interpolated into innerHTML unescaped.
+    function escapeHtml(str) {
+      return String(str == null ? "" : str)
+        .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+    }
+
+    // Render User Models from SQLite.
+    // PERF: re-render only when the model set actually changes — this used to
+    // rebuild the whole list via innerHTML every 500ms poll, causing constant
+    // layout churn and killing hover/click interactions mid-flight.
+    let lastUserModelsSig = null;
+    let lastSessionsSig = null;
+    function renderUserModels(models) {
+      if (!userModelsContainer) return;
+      if (!models || models.length === 0) {
+        if (lastUserModelsSig === "empty") return;
+        lastUserModelsSig = "empty";
+        userModelsContainer.innerHTML = `<div style="font-size: 10px; color: var(--text-muted); padding: 4px;">暂无历史使用模型记录</div>`;
+        return;
+      }
+
+      const sig = models.map(m => `${m.modelId}|${m.name}|${m.count}|${m.pricing ? m.pricing.input : ''}|${m.pricing ? m.pricing.output : ''}`).join(";");
+      if (sig === lastUserModelsSig) return;
+      lastUserModelsSig = sig;
+
+      userModelsContainer.innerHTML = "";
+      models.forEach(m => {
+        const div = document.createElement("div");
+        div.className = "user-model-item";
+        div.innerHTML = `
+          <div class="user-model-info">
+            <span class="user-model-title">${escapeHtml(m.name || m.modelId)}</span>
+            <span class="user-model-meta">使用 ${Number(m.count) || 0} 次 · 当前价: 入$${Number(m.pricing && m.pricing.input) || 0} / 出$${Number(m.pricing && m.pricing.output) || 0}</span>
+          </div>
+          <button class="btn-edit-model">✏️ 改价</button>
+        `;
+        div.querySelector(".btn-edit-model").onclick = () => {
+          const pricing = m.pricing || {};
+          customModelId.value = m.modelId;
+          customModelName.value = m.name || m.modelId;
+          customModelIn.value = Number(pricing.input) || 0.15;
+          customModelOut.value = Number(pricing.output) || 0.60;
+          customModelCache.value = Number(pricing.cacheRead) || 0.0375;
+        };
+        userModelsContainer.appendChild(div);
+      });
+    }
+
+    // Save Custom Model
+    btnSaveCustomModel.addEventListener("click", () => {
+      const id = (customModelId.value || "").trim();
+      if (!id) {
+        alert("请输入模型 ID");
+        return;
+      }
+      if (!settingsState.customModels) settingsState.customModels = {};
+      settingsState.customModels[id] = {
+        name: (customModelName.value || "").trim() || id,
+        input: parseFloat(customModelIn.value) || 0.15,
+        output: parseFloat(customModelOut.value) || 0.60,
+        cacheRead: parseFloat(customModelCache.value) || 0.0375
+      };
+      saveSettingsToServer();
+      alert(`已保存模型 [${id}] 的自定义价格配置！`);
+    });
+
+    window.onPlanTypeChange = function() {
+      const plan = selectPlanType.value;
+      if (plan === "opencode-go") {
+        planOpencodeDesc.style.display = "block";
+        planCustomConfig.style.display = "none";
+      } else {
+        planOpencodeDesc.style.display = "none";
+        planCustomConfig.style.display = "block";
+      }
+    };
+
+    // Display toggle wiring: [settingsKey, hudElementId, checkboxId]
+    const displayToggleMap = [
+      ["showTps", "tps-main-wrap", "chk-tps"],
+      ["showAvgTps", "avg-tps-wrap", "chk-avg-tps"],
+      ["showSparkline", "waveform-wrap", "chk-sparkline"],
+      ["showDuration", "chip-duration", "chk-duration"],
+      ["showInputTokens", "chip-input", "chk-input"],
+      ["showOutputTokens", "chip-output", "chk-output"],
+      ["showReasoning", "chip-reasoning", "chk-reasoning"],
+      ["showCache", "chip-cache", "chk-cache"],
+      ["showCost", "chip-cost", "chk-cost"],
+      ["showSessionSummary", "session-summary-card", "chk-summary"]
+    ];
+
+    function applyDisplayToggles() {
+      displayToggleMap.forEach(([key, elId, chkId]) => {
+        const visible = settingsState[key] !== false;
+        const el = document.getElementById(elId);
+        if (el) el.style.display = visible ? "" : "none";
+        const chk = document.getElementById(chkId);
+        if (chk) chk.checked = visible;
+      });
+    }
+
+    // Live-apply on checkbox change
+    displayToggleMap.forEach(([key, elId, chkId]) => {
+      const chk = document.getElementById(chkId);
+      if (chk) {
+        chk.addEventListener("change", () => {
+          settingsState[key] = chk.checked;
+          const el = document.getElementById(elId);
+          if (el) el.style.display = chk.checked ? "" : "none";
+        });
+      }
+    });
+
+    // Collapsed (minimize) mode — hide everything below the header.
+    // On restore, per-metric sections must respect the user's display toggles:
+    // blindly resetting display:"" used to re-reveal sections the user had
+    // explicitly turned off (e.g. showSparkline / showSessionSummary).
+    const btnMinimize = document.getElementById("btn-minimize");
+    if (btnMinimize) {
+      let hudCollapsed = false;
+      btnMinimize.addEventListener("click", () => {
+        hudCollapsed = !hudCollapsed;
+        const settingVisible = (key) => settingsState[key] !== false;
+        const sectionDisplay = {
+          "quota-tiers-wrap": hudCollapsed ? "none" : "",
+          "waveform-wrap": (!hudCollapsed && settingVisible("showSparkline")) ? "" : "none",
+          "metrics-grid": hudCollapsed ? "none" : "",
+          "session-summary-card": (!hudCollapsed && settingVisible("showSessionSummary")) ? "" : "none"
+        };
+        Object.keys(sectionDisplay).forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.style.display = sectionDisplay[id];
+        });
+        document.querySelectorAll(".tps-showcase").forEach(el => {
+          el.style.display = hudCollapsed ? "none" : "";
+        });
+        btnMinimize.textContent = hudCollapsed ? "+" : "—";
+      });
+    }
+
+    // Draw sparkline SVG with robust zero/single/multi-point boundary handling
+    function renderSparkline(points) {
+      const lineEl = document.getElementById("wave-line");
+      const areaEl = document.getElementById("wave-area");
+      const dotEl = document.getElementById("wave-dot");
+
+      if (!points || !Array.isArray(points) || points.length === 0) {
+        lineEl.setAttribute("d", "");
+        areaEl.setAttribute("d", "");
+        dotEl.setAttribute("cx", "-10");
+        dotEl.setAttribute("cy", "-10");
+        return;
+      }
+
+      const w = 380;
+      const h = 36;
+      const validPoints = points.map(p => (typeof p === 'number' && Number.isFinite(p) ? p : 0));
+
+      if (validPoints.length === 1) {
+        const val = validPoints[0];
+        const max = Math.max(10, val);
+        const y = Math.max(4, Math.min(h - 4, h - (val / max * (h - 8)) - 4));
+        lineEl.setAttribute("d", `M 0 ${y} L ${w} ${y}`);
+        areaEl.setAttribute("d", `M 0 ${h} L 0 ${y} L ${w} ${y} L ${w} ${h} Z`);
+        dotEl.setAttribute("cx", w);
+        dotEl.setAttribute("cy", y);
+        return;
+      }
+
+      const max = Math.max(10, ...validPoints);
+      const step = w / Math.max(1, validPoints.length - 1);
+
+      let dLine = "";
+      let dArea = `M 0 ${h} `;
+
+      validPoints.forEach((p, idx) => {
+        const x = Number((idx * step).toFixed(1));
+        const clampedY = Math.max(4, Math.min(h - 4, h - (p / max * (h - 8)) - 4));
+        const y = Number(clampedY.toFixed(1));
+
+        if (idx === 0) {
+          dLine += `M ${x} ${y}`;
+          dArea += `L ${x} ${y}`;
+        } else {
+          dLine += ` L ${x} ${y}`;
+          dArea += ` L ${x} ${y}`;
+        }
+
+        if (idx === validPoints.length - 1) {
+          dotEl.setAttribute("cx", x);
+          dotEl.setAttribute("cy", y);
+        }
+      });
+
+      dArea += ` L ${w} ${h} Z`;
+      lineEl.setAttribute("d", dLine);
+      areaEl.setAttribute("d", dArea);
+    }
+
+    // Toggle Quota Drawer or Tiers
+    let showTiersDetails = false;
+    costBadge.addEventListener("click", () => {
+      showTiersDetails = !showTiersDetails;
+      quotaTiersWrap.style.display = showTiersDetails ? "flex" : "none";
+    });
+    quotaBadge.addEventListener("click", () => {
+      showTiersDetails = !showTiersDetails;
+      quotaTiersWrap.style.display = showTiersDetails ? "flex" : "none";
+    });
+
+    // Update UI with Metrics
+    function renderMetrics(data) {
+      if (!data) return;
+
+      // Status
+      if (data.status === "running") {
+        pulseDot.className = "pulse-dot generating";
+        statusText.textContent = "生成中";
+      } else {
+        pulseDot.className = "pulse-dot idle";
+        statusText.textContent = "就绪";
+      }
+
+      sessionTitle.textContent = data.sessionTitle || "当前活跃会话";
+      modelName.textContent = data.modelName || "Gemini 3.7 Flash";
+
+      tpsVal.textContent = (data.tps || 0).toFixed(1);
+      avgTpsVal.textContent = (data.avgTps || data.tps || 0).toFixed(1);
+
+      // Coding Plan Quota Rendering
+      if (data.quotaMode && data.planQuota) {
+        const plan = data.planQuota;
+        costBadge.style.display = "none";
+        quotaBadge.style.display = "inline-flex";
+
+        if (plan.planId === "opencode-go" && plan.tiers && plan.tiers.length >= 2) {
+          const t5h = plan.tiers[0];
+          const t7d = plan.tiers[1];
+          quotaVal.textContent = `$${t5h.remaining.toFixed(2)}`;
+          quotaSub.textContent = `5h 限额 (${t5h.percent}%)`;
+
+          tier5hLabel.textContent = `5小时窗口: $${t5h.remaining.toFixed(2)} 剩余 / $${t5h.limit.toFixed(2)}`;
+          tier5hPercent.textContent = `${t5h.percent}%`;
+          tier5hFill.style.width = `${Math.max(2, Math.min(100, t5h.percent))}%`;
+
+          tier7dLabel.textContent = `周窗口 (7天): $${t7d.remaining.toFixed(2)} 剩余 / $${t7d.limit.toFixed(2)}`;
+          tier7dPercent.textContent = `${t7d.percent}%`;
+          tier7dFill.style.width = `${Math.max(2, Math.min(100, t7d.percent))}%`;
+          // Restore stylesheet visibility in case a single-tier plan hid them earlier
+          tier7dRow.style.display = "";
+          tier7dBar.style.display = "";
+        } else if (data.primaryTier) {
+          const pt = data.primaryTier;
+          quotaVal.textContent = `${pt.unit === 'USD' ? '$' : (pt.unit === 'CNY' ? '¥' : '')}${pt.remaining}`;
+          quotaSub.textContent = `剩余配额 (${pt.percent}%)`;
+          tier5hLabel.textContent = `${pt.name}: ${pt.remaining} / ${pt.limit} ${pt.unit}`;
+          tier5hPercent.textContent = `${pt.percent}%`;
+          tier5hFill.style.width = `${Math.max(2, Math.min(100, pt.percent))}%`;
+          tier7dRow.style.display = "none";
+          tier7dBar.style.display = "none";
+        }
+
+        if (data.quotaAlertLevel === "critical") {
+          quotaBadge.className = "quota-badge critical";
+        } else if (data.quotaAlertLevel === "warning") {
+          quotaBadge.className = "quota-badge warning";
+        } else {
+          quotaBadge.className = "quota-badge normal";
+        }
+      } else {
+        costBadge.style.display = "inline-flex";
+        quotaBadge.style.display = "none";
+        quotaTiersWrap.style.display = "none";
+        costVal.textContent = `¥${(data.costCny || 0).toFixed(4)}`;
+      }
+
+      // Chips
+      valInput.textContent = (data.inputTokens || 0).toLocaleString();
+      valOutput.textContent = (data.outputTokens || 0).toLocaleString();
+      valReasoning.textContent = (data.reasoningTokens || 0).toLocaleString();
+      // Conversation-wide cumulative average (falls back to per-turn for old payloads)
+      const cacheRate = (typeof data.sessionCacheHitRate === 'number')
+        ? data.sessionCacheHitRate
+        : (data.cacheHitRate || 0);
+      valCache.textContent = `${cacheRate.toFixed(1)}%`;
+      valDuration.textContent = `${(data.durationSec || 0).toFixed(1)}s`;
+      valCostChip.textContent = `¥${(data.costCny || 0).toFixed(4)}`;
+
+      // Session Aggregate
+      valSessionTokens.textContent = `${((data.sessionInputTokens || 0) + (data.sessionOutputTokens || 0)).toLocaleString()} Tokens (${data.turnsCount || 0}轮)`;
+      valSessionCost.textContent = `¥${(data.sessionCostCny || 0).toFixed(3)} ($${(data.sessionCostUsd || 0).toFixed(4)})`;
+
+      // Sparkline
+      renderSparkline(data.sparkline || [0, 0]);
+
+      // Populate User Models
+      if (data.userModels && Array.isArray(data.userModels)) {
+        renderUserModels(data.userModels);
+      }
+
+      // Populate Sessions in dropdown.
+      // PERF/UX: rebuild the <option> list only when the session set actually
+      // changed — the previous per-tick innerHTML rebuild closed the open
+      // dropdown and reset selection state every 500ms while the user was
+      // trying to pick a session.
+      if (data.sessions && Array.isArray(data.sessions)) {
+        const sessionsSig = data.sessions.map(s => `${s.id}|${s.title || ""}`).join(";");
+        if (sessionsSig !== lastSessionsSig) {
+          lastSessionsSig = sessionsSig;
+          const curVal = selectSession.value;
+          selectSession.innerHTML = `<option value="auto">⚡ 自动追踪最新活跃会话 (Auto-Detect)</option>`;
+          data.sessions.forEach(s => {
+            const opt = document.createElement("option");
+            opt.value = s.id;
+            opt.textContent = `[${s.id.slice(0, 10)}] ${s.title || "未命名会话"}`;
+            selectSession.appendChild(opt);
+          });
+          selectSession.value = curVal;
+          // Saved session may no longer exist in the list — fall back to Auto
+          if (selectSession.value !== curVal) {
+            selectSession.value = "auto";
+            settingsState.selectedSessionId = "auto";
+          }
+        }
+      }
+    }
+
+    // Polling live metrics with network retry & offline reconnection UI indicator
+    let consecutiveFetchErrors = 0;
+    let fetchInFlight = false;
+    async function fetchLiveMetrics() {
+      // Guard against overlapping requests: a slow response used to stack up
+      // with the next 500ms interval tick and pile up in-flight fetches.
+      if (fetchInFlight) return;
+      fetchInFlight = true;
+      try {
+        const res = await fetch('./live-metrics.json?t=' + Date.now());
+        if (res.ok) {
+          const data = await res.json();
+          metricsState = data;
+          consecutiveFetchErrors = 0;
+          statusText.title = ""; // clear the reconnect hint set during outages
+          renderMetrics(data);
+        } else {
+          throw new Error('HTTP ' + res.status);
+        }
+      } catch (err) {
+        consecutiveFetchErrors++;
+        // If disconnected for 3+ consecutive polls, show subtle reconnection status
+        if (consecutiveFetchErrors >= 3) {
+          pulseDot.className = "pulse-dot idle";
+          statusText.textContent = "重连中...";
+          statusText.title = "正在重新连接后端数据采集服务...";
+        }
+      } finally {
+        fetchInFlight = false;
+      }
+    }
+
+    // Pause polling while the page is hidden (background tab / minimized
+    // window) so an invisible HUD stops burning CPU, battery and network.
+    let metricsTimer = setInterval(fetchLiveMetrics, 500);
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) {
+        if (metricsTimer) { clearInterval(metricsTimer); metricsTimer = null; }
+      } else {
+        fetchLiveMetrics(); // immediate refresh on re-focus
+        if (!metricsTimer) metricsTimer = setInterval(fetchLiveMetrics, 500);
+      }
+    });
+
+    // Polling settings.
+    // FIX: the old `fetch(...).catch(() => fetch('./settings.json'))` chain never
+    // engaged its fallback — fetch resolves (not rejects) on HTTP 404, so the
+    // .catch only fired on network-level errors. We now fall back sequentially
+    // on any non-OK response, and tolerate malformed JSON without throwing.
+    async function fetchSettings() {
+      let s = null;
+      try {
+        const res = await fetch('./api/settings?t=' + Date.now());
+        if (res.ok) s = await res.json();
+      } catch (err) { /* network error -> try static fallback below */ }
+      if (!s || typeof s !== 'object') {
+        try {
+          const res2 = await fetch('./settings.json?t=' + Date.now());
+          if (res2.ok) s = await res2.json();
+        } catch (err2) { s = null; }
+      }
+      if (s && typeof s === 'object') {
+        settingsState = Object.assign(settingsState, s);
+        applyTheme(settingsState.theme || "AppleGlass");
+        applyDisplayToggles();
+        if (settingsState.planSettings && settingsState.planSettings.selectedPlan) {
+          selectPlanType.value = settingsState.planSettings.selectedPlan;
+          onPlanTypeChange();
+        }
+      }
+    }
+
+    async function saveSettingsToServer() {
+      settingsState.theme = selectTheme.value;
+      settingsState.selectedSessionId = selectSession.value;
+      if (!settingsState.planSettings) settingsState.planSettings = {};
+      settingsState.planSettings.selectedPlan = selectPlanType.value;
+      settingsState.planSettings.enabled = chkPlanEnabled.checked;
+      displayToggleMap.forEach(([key, , chkId]) => {
+        const chk = document.getElementById(chkId);
+        settingsState[key] = chk ? chk.checked : settingsState[key] !== false;
+      });
+      
+      // Persist to server API and fallback to localStorage
+      try {
+        await fetch('./api/settings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(settingsState)
+        });
+      } catch (e) {}
+
+      try {
+        localStorage.setItem("zcode_hud_settings", JSON.stringify(settingsState));
+      } catch (e) {}
+    }
+
+    // Event Bindings
+    btnSettings.addEventListener("click", () => {
+      settingsDrawer.classList.add("open");
+      renderPresetCatalog();
+    });
+
+    btnCloseSettings.addEventListener("click", () => {
+      settingsDrawer.classList.remove("open");
+    });
+
+    selectTheme.addEventListener("change", (e) => {
+      applyTheme(e.target.value);
+    });
+
+    btnSaveSettings.addEventListener("click", () => {
+      saveSettingsToServer();
+      applyTheme(selectTheme.value);
+      settingsDrawer.classList.remove("open");
+    });
+
+    // Start
+    applyDisplayToggles();
+    fetchSettings();
+    renderPresetCatalog();
+    fetchLiveMetrics();
+    // NOTE: exactly one polling interval exists — `metricsTimer` is created
+    // once at module scope (above, with the visibilitychange wiring) and that
+    // handler only clears/recreates it on tab hide/show. Never start a second
+    // interval here.
+  </script>
+</body>
+</html>
