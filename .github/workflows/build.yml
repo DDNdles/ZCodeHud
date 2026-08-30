@@ -1,0 +1,49 @@
+name: Build Release
+
+# Build a fresh ZCodeHud.exe on every pushed tag (v*) and attach the
+# ready-to-run zip to the matching GitHub Release. Mirrors the local
+# `node compile.mjs` workflow (NET Framework 4 csc + GAC WPF references).
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build-windows:
+    name: Build ZCodeHud.exe (windows-x64)
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Compile ZCodeHud.exe (.NET Framework 4 csc)
+        shell: bash
+        run: node compile.mjs
+
+      - name: Package release zip
+        shell: pwsh
+        run: |
+          $ver = $env:GITHUB_REF_NAME
+          $zip = "ZCodeHud-$ver-windows-x64.zip"
+          Compress-Archive -Force -Path `
+            ZCodeHud.exe, launch-hud.mjs, poll-metrics.mjs, pricing-catalog.mjs, `
+            plan-quota-detector.mjs, hud-server.mjs, hud-web.html, start-hud.bat, README.md `
+            -DestinationPath $zip
+          "ZIP=$zip" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: Publish to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ env.ZIP }}
+          overwrite_files: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
